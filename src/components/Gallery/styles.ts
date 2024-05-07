@@ -3,6 +3,8 @@ import { cores } from '../../styles'
 
 export const Items = styled.ul`
   display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
 `
 //A opacidade e 0 pois ele sera visivel apenas quando passar o mouse por cima do elemento (hover)
 export const Action = styled.div`
@@ -21,7 +23,6 @@ export const Action = styled.div`
 
 //o sinal > foi colocado antes do img para que as regras se apliquem apenas as imagens filhas diretas do li
 export const Item = styled.li`
-  margin-right: 16px;
   position: relative;
 
   > img {

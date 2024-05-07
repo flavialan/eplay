@@ -2,22 +2,11 @@ import { useParams } from 'react-router-dom' //usar o paramentro id criado no ro
 import Hero from '../../components/Hero'
 import Section from '../../components/Section'
 import Gallery from '../../components/Gallery'
-import hogwartsBanner from '../../assets/images/fundo_hogwarts.png'
-import { useEffect, useState } from 'react'
-import { Game } from '../Home'
+import { useGetGameQuery } from '../../services/api'
 
 const Product = () => {
   const { id } = useParams() //desestrutura o id
-
-  //cria um estado para receber as informacoes do jogo com id especifico
-  const [game, setGame] = useState<Game>()
-
-  //Nesse caso o useEffect vai ter uma dependendia que sera o id passado no useParams
-  useEffect(() => {
-    fetch(`https://fake-api-tau.vercel.app/api/eplay/jogos/${id}`) //pega a api
-      .then((res) => res.json()) //transforma a api em um arquivo json
-      .then((res) => setGame(res))
-  }, [id])
+  const { data: game } = useGetGameQuery(id!) //coloca-se a ! para fazer esse valor ser obrigatorio
 
   if (!game) {
     return <h3>Caregando...</h3>
