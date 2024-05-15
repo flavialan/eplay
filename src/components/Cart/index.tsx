@@ -1,18 +1,14 @@
+import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { RootReducer } from '../../store'
+
 import Button from '../Button'
-import {
-  CartContainer,
-  CartItem,
-  Overlay,
-  Prices,
-  Quantity,
-  Sidebar
-} from './styles'
-import hogwarts from '../../assets/images/fundo_hogwarts.png'
 import Tag from '../Tag'
+
+import { RootReducer } from '../../store'
 import { close, remove } from '../../store/reducers/cart'
-import { pricesFormat } from '../ProductList'
+import { getTotalPrice, parseToBrl } from '../../utils'
+
+import * as S from './styles'
 
 const Cart = () => {
   /*Aqui desestruturamos o tipo Cart criado no reducer e utilizamos o useSelector para selecionar o estado
@@ -24,6 +20,9 @@ const Cart = () => {
   //cria-se uma constante dispatch que sera igual ao useDispatch para despachar a acao de abrir e fechar
   const dispatch = useDispatch()
 
+  //cria a constante navigate para usar o recurso useNavigate do react-router-dom para navegar entre paginas
+  const navigate = useNavigate()
+
   //agora cria uma funcao que ira fechar o carrinho
   const closeCart = () => {
     dispatch(close())
@@ -34,44 +33,55 @@ const Cart = () => {
     dispatch(remove(id))
   }
 
-  //cria a funcao que ira somar os precos dos jogos no carrinho
-  /*Aqui, a funcao de pegar o valor total, recebera um acumulador e o valor atual. Essa funcao ira retornar a soma
-  dos valores e como argumento passamos o valor inicial como 0. Colocamos a ! apos o valorAtual para que esse valor
-  seja obrigatorio*/
-  const getTotalPrice = () => {
-    return items.reduce((acumulador, valorAtual) => {
-      return (acumulador += valorAtual.prices.current!)
-    }, 0)
+  /*Cria a funcao que ao clicar no botao de finalizar compra nos leva para a pagina de checkout */
+  const goToCheckout = () => {
+    /*Navigate e uma funcao onde o primeiro argumento e o to*/
+    navigate('/checkout')
+    closeCart()
   }
 
+  //Vamos renderizar o botao e o que esta escrito no carrinho apenas quando houver itens no carrinho
   return (
-    <CartContainer className={isOpen ? 'is-open' : ''}>
-      <Overlay onClick={closeCart} />
-      <Sidebar>
-        <ul>
-          {items.map((item) => (
-            <CartItem key={item.id}>
-              <img src={item.media.thumbnail} alt={item.name} />
-              <div>
-                <h3>{item.name}</h3>
-                <Tag>{item.details.category}</Tag>
-                <Tag>{item.details.system}</Tag>
-                <span>{pricesFormat(item.prices.current)}</span>
-              </div>
-              <button onClick={() => removeItem(item.id)} type="button" />
-            </CartItem>
-          ))}
-        </ul>
-        <Quantity>{items.length} jogo(s) no carrinho</Quantity>
-        <Prices>
-          Total de {pricesFormat(getTotalPrice())}{' '}
-          <span>Em ate 6x sem juros</span>
-        </Prices>
-        <Button title="Clique aqui para continuar com a compra" type="button">
-          Continuar com a compra
-        </Button>
-      </Sidebar>
-    </CartContainer>
+    <S.CartContainer className={isOpen ? 'is-open' : ''}>
+      <S.Overlay onClick={closeCart} />
+      <S.Sidebar>
+        {items.length > 0 ? (
+          <>
+            <ul>
+              {items.map((item) => (
+                <S.CartItem key={item.id}>
+                  <img src={item.media.thumbnail} alt={item.name} />
+                  <div>
+                    <h3>{item.name}</h3>
+                    <Tag>{item.details.category}</Tag>
+                    <Tag>{item.details.system}</Tag>
+                    <span>{parseToBrl(item.prices.current)}</span>
+                  </div>
+                  <button onClick={() => removeItem(item.id)} type="button" />
+                </S.CartItem>
+              ))}
+            </ul>
+            <S.Quantity>{items.length} jogo(s) no carrinho</S.Quantity>
+            <S.Prices>
+              Total de {parseToBrl(getTotalPrice(items))}{' '}
+              <span>Em ate 6x sem juros</span>
+            </S.Prices>
+            <Button
+              title="Clique aqui para continuar com a compra"
+              type="button"
+              onClick={goToCheckout}
+            >
+              Continuar com a compra
+            </Button>
+          </>
+        ) : (
+          <p className="empty-test">
+            O carrinho está vazio. Adicione pelo menos um produto para continuar
+            com a compra.
+          </p>
+        )}
+      </S.Sidebar>
+    </S.CartContainer>
   )
 }
 

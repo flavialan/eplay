@@ -1,15 +1,24 @@
 import { useParams } from 'react-router-dom' //usar o paramentro id criado no rotas tornando-a dinamica
+
 import Hero from '../../components/Hero'
 import Section from '../../components/Section'
 import Gallery from '../../components/Gallery'
+import Loader from '../../components/Loader'
+
 import { useGetGameQuery } from '../../services/api'
 
+//Para tratar a exclamacao no id vamos criar um tipo. Sera string pois todo paramentro para o react-router-dom
+//e uma string
+type GameParams = {
+  id: string
+}
+
 const Product = () => {
-  const { id } = useParams() //desestrutura o id
-  const { data: game } = useGetGameQuery(id!) //coloca-se a ! para fazer esse valor ser obrigatorio
+  const { id } = useParams() as GameParams //desestrutura o id
+  const { data: game } = useGetGameQuery(id) //coloca-se a ! para fazer esse valor ser obrigatorio
 
   if (!game) {
-    return <h3>Caregando...</h3>
+    return <Loader />
   }
 
   return (

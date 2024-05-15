@@ -1,26 +1,21 @@
-import { Game } from '../../pages/Home'
 import Product from '../Product'
-import { Container, List } from './styles'
+
+import { parseToBrl } from '../../utils'
+
+import * as S from './styles'
+import Loader from '../Loader'
 
 //Aqui criaremos um tipo que recebera um objeto
 //Aqui as props sao exportadas para que possamos usa-las na folha de estilos
 export type Props = {
   title: string
   background: 'gray' | 'black'
-  games: Game[]
+  games?: Game[]
   id?: string
+  isLoading: boolean //propriedade que ira dizer se a pagina esta carregando ou nao
 }
 
-//cria uma funcao para formatar os precos
-//ficou fora do elemento react para que possa ser usada em outro arquivo
-export const pricesFormat = (price = 0) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(price)
-}
-
-const ProductList = ({ background, title, games, id }: Props) => {
+const ProductList = ({ background, title, games, id, isLoading }: Props) => {
   //criando uma funcao para avaliar a api e retornar o que se deseja
   const getGameTags = (game: Game) => {
     const tags = []
@@ -34,33 +29,38 @@ const ProductList = ({ background, title, games, id }: Props) => {
     }
 
     if (game.prices.current) {
-      tags.push(pricesFormat(game.prices.current))
+      tags.push(parseToBrl(game.prices.current))
     }
 
     return tags
   }
 
+  if (isLoading) {
+    return <Loader />
+  }
+
   return (
-    <Container id={id} background={background}>
+    <S.Container id={id} background={background}>
       <div className="container">
         <h2>{title}</h2>
-        <List>
-          {games.map((game) => (
-            <li key={game.id}>
-              <Product
-                id={game.id}
-                category={game.details.category}
-                description={game.description}
-                image={game.media.thumbnail}
-                infos={getGameTags(game)}
-                system={game.details.system}
-                title={game.name}
-              />
-            </li>
-          ))}
-        </List>
+        <S.List>
+          {games &&
+            games.map((game) => (
+              <li key={game.id}>
+                <Product
+                  id={game.id}
+                  category={game.details.category}
+                  description={game.description}
+                  image={game.media.thumbnail}
+                  infos={getGameTags(game)}
+                  system={game.details.system}
+                  title={game.name}
+                />
+              </li>
+            ))}
+        </S.List>
       </div>
-    </Container>
+    </S.Container>
   )
 }
 

@@ -1,5 +1,44 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { Game } from '../pages/Home'
+
+//cria o tipo Product
+type Product = {
+  id: number
+  price: number
+}
+
+//cria o tipo que servira de base para os dados da api
+type PurchasePayload = {
+  products: Product[]
+  billing: {
+    name: string
+    email: string
+    document: string
+  }
+  delivery: {
+    email: string
+  }
+  payment: {
+    card: {
+      active: boolean
+      owner?: {
+        name: string
+        document: string
+      }
+      name?: string
+      number?: string
+      expires?: {
+        month: number
+        year: number
+      }
+      code?: number
+    }
+    installments: number //quando for no boleto sera 1 e no cartao mais vezes
+  }
+}
+
+type PurchaseResponse = {
+  orderId: string
+}
 
 //aqui criamos uma api. createApi e uma funcao que recebe objetos
 const api = createApi({
@@ -45,6 +84,19 @@ const api = createApi({
     getGame: builder.query<Game, string>({
       //query agora recebe o argumento do tipo passado acima
       query: (id) => `jogos/${id}`
+    }),
+    //endpoint para enviar os dados da compra para uma api
+    //o primeiro argumento e a resposta da api. Como ainda nao sabemos usareamos any. Depois que fizemos
+    //a integracao da api podemos ver no inspetor do navegador que esse tipo e orderId que e uma string
+    //o segundo argumento e o que enviaremos para a api. Para isso criamos um tipo que contenha os dados presentes
+    //na api. O tipo criado foi o PurchasePayload.
+    purchase: builder.mutation<PurchaseResponse, PurchasePayload>({
+      //usamos a query. Ela sera uma arrow function que retorna um objeto com algumas opcoes
+      query: (body) => ({
+        url: 'checkout', //a url da api
+        method: 'POST', //vamos postar algo na api
+        body //sao as informacoes que virao de PurchasePayload
+      })
     })
   })
 })
@@ -59,6 +111,7 @@ export const {
   useGetRpgGamesQuery,
   useGetSimulationGamesQuery,
   useGetSportsGamesQuery,
-  useGetGameQuery
+  useGetGameQuery,
+  usePurchaseMutation
 } = api
 export default api

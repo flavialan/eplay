@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { Game } from '../../pages/Home'
 
 //E necessario tipar os itens do initialState para isso:
 type CartState = {
@@ -49,10 +48,14 @@ const cartSlice = createSlice({
     //cria tambem uma acao para fechar
     close: (state) => {
       state.isOpen = false
+    },
+    //cria uma action para limpar o carrinho apos a finalizacao da compra
+    clear: (state) => {
+      state.items = []
     }
   }
 })
 
 //exportamos a slice e as acoes presentes dentro dele
-export const { add, open, close, remove } = cartSlice.actions
+export const { add, open, close, remove, clear } = cartSlice.actions
 export default cartSlice.reducer
